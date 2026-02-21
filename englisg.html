@@ -3,91 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English FlashCards - 500 Palavras</title>
+    <title>English Pro - 500 Flashcards</title>
     <style>
         :root {
-            --primary: #6c5ce7;
-            --success: #00b894;
-            --warning: #f1c40f;
-            --danger: #d63031;
-            --bg: #f0f2f5;
+            --primary: #4834d4;
+            --facil: #2ecc71;
+            --medio: #f1c40f;
+            --dificil: #e74c3c;
+            --bg: #f5f6fa;
+            --text: #2f3640;
         }
 
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        /* Menu e Progresso */
-        .header { width: 100%; max-width: 500px; padding: 20px; text-align: center; }
-        .progress-container { background: #dfe6e9; border-radius: 10px; height: 10px; width: 100%; margin: 10px 0; }
-        .progress-bar { background: var(--primary); height: 100%; border-radius: 10px; width: 0%; transition: 0.5s; }
+        /* Dashboard de Progresso */
+        .dashboard { width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; text-align: center; }
+        .stat-item { padding: 10px; border-radius: 8px; font-size: 0.8em; font-weight: bold; }
+        .stat-facil { background: rgba(46, 204, 113, 0.1); color: var(--facil); }
+        .stat-medio { background: rgba(241, 196, 15, 0.1); color: #9b8a00; }
+        .stat-dificil { background: rgba(231, 76, 60, 0.1); color: var(--dificil); }
         
+        .progress-info { font-size: 0.9em; margin-bottom: 5px; display: flex; justify-content: space-between; }
+        .progress-bg { background: #dcdde1; height: 8px; border-radius: 4px; overflow: hidden; }
+        .progress-fill { background: var(--primary); height: 100%; width: 0%; transition: 0.5s; }
+
         /* Flashcard */
-        .card-container { perspective: 1000px; width: 350px; height: 450px; cursor: pointer; margin-top: 20px; }
-        .card { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.6s; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 20px; }
+        .card-container { perspective: 1000px; width: 320px; height: 380px; margin: 30px 0; cursor: pointer; }
+        .card { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
         .card.flipped { transform: rotateY(180deg); }
         
-        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; background: white; border-radius: 20px; padding: 20px; box-sizing: border-box; }
-        .card-back { transform: rotateY(180deg); background: #f9f9f9; }
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; background: white; border-radius: 20px; padding: 30px; box-sizing: border-box; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 1px solid #eee; }
+        .card-back { transform: rotateY(180deg); background: #fdfdfd; }
         
-        .word-en { font-size: 42px; font-weight: bold; color: var(--primary); }
-        .word-pt { font-size: 32px; color: #2d3436; }
-        .card-image { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; }
+        .label { font-size: 0.7em; color: #aaa; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+        .word-en { font-size: 48px; font-weight: 800; color: var(--primary); text-align: center; }
+        .word-pt { font-size: 32px; font-weight: 600; color: var(--text); text-align: center; }
 
-        /* Botões */
-        .controls { display: none; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 350px; margin-top: 20px; }
-        .btn { padding: 15px 5px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 14px; }
-        .btn-easy { background: var(--success); }
-        .btn-medium { background: var(--warning); }
-        .btn-hard { background: var(--danger); }
+        /* Botões de Controle */
+        .controls { width: 320px; display: none; grid-template-columns: repeat(3, 1fr); gap: 10px; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .btn { border: none; padding: 15px 5px; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 13px; transition: 0.2s; }
+        .btn:active { transform: scale(0.95); }
+        .btn-hard { background: var(--dificil); }
+        .btn-medium { background: var(--medio); }
+        .btn-easy { background: var(--facil); }
 
-        .stats { margin-top: 20px; font-size: 0.9em; color: #636e72; }
+        .footer-info { margin-top: auto; padding: 20px; font-size: 0.8em; color: #999; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h2>My English Journey 🇺🇸</h2>
-    <div class="stats">
-        Progresso: <span id="learned-count">0</span> / 500 palavras
+<div class="dashboard">
+    <div class="stats-grid">
+        <div class="stat-item stat-dificil">NÃO SEI<br><span id="count-hard">0</span></div>
+        <div class="stat-item stat-medio">MÉDIO<br><span id="count-medium">0</span></div>
+        <div class="stat-item stat-facil">JÁ SEI<br><span id="count-easy">0</span></div>
     </div>
-    <div class="progress-container">
-        <div class="progress-bar" id="progress-bar"></div>
+    <div class="progress-info">
+        <span>Progresso Geral</span>
+        <span id="perc-info">0%</span>
+    </div>
+    <div class="progress-bg">
+        <div class="progress-fill" id="progress-bar"></div>
     </div>
 </div>
 
 <div class="card-container" onclick="flipCard()">
     <div class="card" id="card">
         <div class="card-face card-front">
-            <p style="font-size: 0.8em; color: #aaa;">TOQUE PARA VIRAR</p>
-            <div class="word-en" id="current-word-en">The</div>
+            <span class="label">English</span>
+            <div class="word-en" id="display-en">...</div>
+            <p style="font-size: 12px; color: #ccc; margin-top: 40px;">Toque para ver a tradução</p>
         </div>
         <div class="card-face card-back">
-            <img src="https://img.freepik.com/fotos-gratis/mao-apontando-para-algo_23-2147731006.jpg" class="card-image" id="current-image">
-            <div class="word-pt" id="current-word-pt">O, A, Os, As</div>
+            <span class="label">Português</span>
+            <div class="word-pt" id="display-pt">...</div>
         </div>
     </div>
 </div>
 
 <div class="controls" id="controls">
-    <button class="btn btn-hard" onclick="handleAnswer('hard')">Não sei<br>(Repetir)</button>
-    <button class="btn btn-medium" onclick="handleAnswer('medium')">Lembrei<br>(Médio)</button>
-    <button class="btn btn-easy" onclick="handleAnswer('easy')">Já sei<br>(Fácil)</button>
+    <button class="btn btn-hard" onclick="handleAnswer('hard')">NÃO SEI</button>
+    <button class="btn btn-medium" onclick="handleAnswer('medium')">MÉDIO</button>
+    <button class="btn btn-easy" onclick="handleAnswer('easy')">JÁ SEI</button>
+</div>
+
+<div class="footer-info">
+    Palavras restantes: <span id="rem-count">0</span>
 </div>
 
 <script>
-    // Banco de Dados das Palavras (Exemplo das primeiras)
-    const database = [
-        { en: "The", pt: "O, A, Os, As", img: "https://images.unsplash.com/photo-1584905066893-7d5c142ba4e1?q=80&w=400" },
-        { en: "And", pt: "E", img: "https://images.unsplash.com/photo-1518112391480-98fc524a8bfd?q=80&w=400" },
-        { en: "A", pt: "Um, Uma", img: "https://images.unsplash.com/photo-1543185377-b75671bc9660?q=80&w=400" },
-        { en: "To", pt: "Para", img: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=400" }
-        // ... Adicionar as outras 496 aqui
+    // LISTA DAS 500 PALAVRAS (Começando com as primeiras para teste)
+    // Você pode ir adicionando as próximas seguindo o padrão {en: "", pt: ""}
+   let words = [
+        { en: "The", pt: "O, A, Os, As" }, { en: "Of", pt: "De, Do, Da" }, { en: "And", pt: "E" }, { en: "A", pt: "Um, Uma" }, { en: "To", pt: "Para, A" }, { en: "In", pt: "Em, Dentro" }, { en: "Is", pt: "É, Está" }, { en: "You", pt: "Você, Vocês" }, { en: "That", pt: "Que, Aquele, Aquilo" }, { en: "It", pt: "Ele, Ela (coisas)" },
+        { en: "He", pt: "Ele" }, { en: "Was", pt: "Era, Estava" }, { en: "For", pt: "Por, Para" }, { en: "On", pt: "Em, Sobre" }, { en: "Are", pt: "São, Estão" }, { en: "With", pt: "Com" }, { en: "As", pt: "Como, Enquanto" }, { en: "I", pt: "Eu" }, { en: "His", pt: "Dele" }, { en: "They", pt: "Eles, Elas" },
+        { en: "Be", pt: "Ser, Estar" }, { en: "At", pt: "Em, No, Na" }, { en: "One", pt: "Um" }, { en: "Have", pt: "Ter" }, { en: "This", pt: "Este, Esta, Isto" }, { en: "From", pt: "De, Origem" }, { en: "Or", pt: "Ou" }, { en: "Had", pt: "Tinha, Havia" }, { en: "By", pt: "Por, Perto de" }, { en: "Not", pt: "Não" },
+        { en: "But", pt: "Mas, Porém" }, { en: "Some", pt: "Algum, Alguns" }, { en: "What", pt: "O que, Qual" }, { en: "There", pt: "Lá, Ali" }, { en: "We", pt: "Nós" }, { en: "Can", pt: "Pode, Conseguir" }, { en: "Out", pt: "Fora" }, { en: "Other", pt: "Outro" }, { en: "Were", pt: "Eram, Estavam" }, { en: "All", pt: "Tudo, Todos" },
+        { en: "Your", pt: "Seu, Sua" }, { en: "When", pt: "Quando" }, { en: "Up", pt: "Para cima" }, { en: "Use", pt: "Usar" }, { en: "Word", pt: "Palavra" }, { en: "How", pt: "Como" }, { en: "Said", pt: "Disse" }, { en: "An", pt: "Um, Uma (vogal)" }, { en: "Each", pt: "Cada" }, { en: "She", pt: "Ela" },
+        { en: "Which", pt: "Qual, O qual" }, { en: "Do", pt: "Fazer" }, { en: "Their", pt: "Deles, Delas" }, { en: "Time", pt: "Tempo, Hora" }, { en: "If", pt: "Se" }, { en: "Will", pt: "Irá (futuro)" }, { en: "Way", pt: "Caminho, Jeito" }, { en: "About", pt: "Sobre, Cerca de" }, { en: "Many", pt: "Muitos" }, { en: "Then", pt: "Então, Depois" },
+        { en: "Them", pt: "Eles, Elas (obj)" }, { en: "Write", pt: "Escrever" }, { en: "Would", pt: "Gostaria, Seria" }, { en: "Like", pt: "Gostar, Como" }, { en: "So", pt: "Então, Tão" }, { en: "These", pt: "Estes, Estas" }, { en: "Her", pt: "Dela" }, { en: "Long", pt: "Longo" }, { en: "Make", pt: "Fazer, Criar" }, { en: "Thing", pt: "Coisa" },
+        { en: "See", pt: "Ver" }, { en: "Him", pt: "Ele (obj)" }, { en: "Two", pt: "Dois" }, { en: "Has", pt: "Tem" }, { en: "Look", pt: "Olhar" }, { en: "More", pt: "Mais" }, { en: "Day", pt: "Dia" }, { en: "Could", pt: "Poderia" }, { en: "Go", pt: "Ir" }, { en: "Come", pt: "Vir" },
+        { en: "Did", pt: "Fez (passado)" }, { en: "Number", pt: "Número" }, { en: "Sound", pt: "Som" }, { en: "No", pt: "Não" }, { en: "Most", pt: "Mais, Maioria" }, { en: "People", pt: "Pessoas" }, { en: "My", pt: "Meu" }, { en: "Over", pt: "Sobre, Acima" }, { en: "Know", pt: "Saber, Conhecer" }, { en: "Water", pt: "Água" },
+        { en: "Than", pt: "Do que (comp)" }, { en: "Call", pt: "Chamar, Ligar" }, { en: "First", pt: "Primeiro" }, { en: "Who", pt: "Quem" }, { en: "May", pt: "Pode (perm)" }, { en: "Down", pt: "Para baixo" }, { en: "Side", pt: "Lado" }, { en: "Been", pt: "Sido, Estado" }, { en: "Now", pt: "Agora" }, { en: "Find", pt: "Achar, Encontrar" },
+        { en: "Any", pt: "Qualquer" }, { en: "New", pt: "Novo" }, { en: "Work", pt: "Trabalho" }, { en: "Part", pt: "Parte" }, { en: "Take", pt: "Pegar, Levar" }, { en: "Get", pt: "Pegar, Obter" }, { en: "Place", pt: "Lugar" }, { en: "Made", pt: "Feito" }, { en: "Live", pt: "Viver, Morar" }, { en: "Where", pt: "Onde" },
+        { en: "After", pt: "Depois" }, { en: "Back", pt: "Volta, Atrás" }, { en: "Little", pt: "Pouco, Pequeno" }, { en: "Only", pt: "Apenas, Somente" }, { en: "Round", pt: "Redondo, Volta" }, { en: "Man", pt: "Homem" }, { en: "Year", pt: "Ano" }, { en: "Came", pt: "Veio" }, { en: "Show", pt: "Mostrar" }, { en: "Every", pt: "Todo, Cada" },
+        { en: "Good", pt: "Bom" }, { en: "Me", pt: "Me, Mim" }, { en: "Give", pt: "Dar" }, { en: "Our", pt: "Nosso" }, { en: "Under", pt: "Debaixo" }, { en: "Name", pt: "Nome" }, { en: "Very", pt: "Muito" }, { en: "Through", pt: "Através" }, { en: "Just", pt: "Apenas, Justo" }, { en: "Form", pt: "Forma" },
+        { en: "Sentence", pt: "Frase, Sentença" }, { en: "Great", pt: "Ótimo, Grande" }, { en: "Think", pt: "Pensar" }, { en: "Say", pt: "Dizer" }, { en: "Help", pt: "Ajuda" }, { en: "Low", pt: "Baixo" }, { en: "Line", pt: "Linha" }, { en: "Differ", pt: "Diferir" }, { en: "Turn", pt: "Virar, Vez" }, { en: "Cause", pt: "Causa" },
+        { en: "Much", pt: "Muito" }, { en: "Mean", pt: "Significar, Mau" }, { en: "Before", pt: "Antes" }, { en: "Move", pt: "Mover" }, { en: "Right", pt: "Direito, Certo" }, { en: "Boy", pt: "Menino" }, { en: "Old", pt: "Velho" }, { en: "Too", pt: "Também, Demais" }, { en: "Same", pt: "Mesmo" }, { en: "Tell", pt: "Contar, Dizer" },
+        { en: "Does", pt: "Faz (he/she)" }, { en: "Set", pt: "Conjunto, Definir" }, { en: "Three", pt: "Três" }, { en: "Want", pt: "Querer" }, { en: "Air", pt: "Ar" }, { en: "Well", pt: "Bem, Poço" }, { en: "Also", pt: "Também" }, { en: "Play", pt: "Jogar, Tocar" }, { en: "Small", pt: "Pequeno" }, { en: "End", pt: "Fim" },
+        { en: "Put", pt: "Colocar" }, { en: "Home", pt: "Casa, Lar" }, { en: "Read", pt: "Ler" }, { en: "Hand", pt: "Mão" }, { en: "Port", pt: "Porto" }, { en: "Large", pt: "Grande" }, { en: "Spell", pt: "Soletrar" }, { en: "Add", pt: "Adicionar" }, { en: "Even", pt: "Até mesmo, Par" }, { en: "Land", pt: "Terra" },
+        { en: "Here", pt: "Aqui" }, { en: "Must", pt: "Deve" }, { en: "Big", pt: "Grande" }, { en: "High", pt: "Alto" }, { en: "Such", pt: "Tal, Tão" }, { en: "Follow", pt: "Seguir" }, { en: "Act", pt: "Agir" }, { en: "Why", pt: "Por que" }, { en: "Ask", pt: "Perguntar" }, { en: "Men", pt: "Homens" },
+        { en: "Change", pt: "Mudar, Troco" }, { en: "Went", pt: "Foi" }, { en: "Light", pt: "Luz, Leve" }, { en: "Kind", pt: "Tipo, Gentil" }, { en: "Off", pt: "Desligado, Fora" }, { en: "Need", pt: "Precisar" }, { en: "House", pt: "Casa" }, { en: "Picture", pt: "Foto, Imagem" }, { en: "Try", pt: "Tentar" }, { en: "Us", pt: "Nós (obj)" },
+        { en: "Again", pt: "Novamente" }, { en: "Animal", pt: "Animal" }, { en: "Point", pt: "Ponto" }, { en: "Mother", pt: "Mãe" }, { en: "World", pt: "Mundo" }, { en: "Near", pt: "Perto" }, { en: "Build", pt: "Construir" }, { en: "Self", pt: "Próprio" }, { en: "Earth", pt: "Terra (planeta)" }, { en: "Father", pt: "Pai" },
+        { en: "Any", pt: "Qualquer" }, { en: "New", pt: "Novo" }, { en: "Work", pt: "Trabalho" }, { en: "Part", pt: "Parte" }, { en: "Take", pt: "Pegar" }, { en: "Get", pt: "Obter" }, { en: "Place", pt: "Lugar" }, { en: "Made", pt: "Feito" }, { en: "Live", pt: "Viver" }, { en: "Where", pt: "Onde" },
+        { en: "Head", pt: "Cabeça" }, { en: "Stand", pt: "Ficar de pé" }, { en: "Own", pt: "Próprio" }, { en: "Page", pt: "Página" }, { en: "Should", pt: "Deveria" }, { en: "Country", pt: "País" }, { en: "Found", pt: "Encontrou" }, { en: "Answer", pt: "Resposta" }, { en: "School", pt: "Escola" }, { en: "Grow", pt: "Crescer" },
+        { en: "Study", pt: "Estudar" }, { en: "Still", pt: "Ainda" }, { en: "Learn", pt: "Aprender" }, { en: "Plant", pt: "Planta" }, { en: "Cover", pt: "Capa, Cobrir" }, { en: "Food", pt: "Comida" }, { en: "Sun", pt: "Sol" }, { en: "Four", pt: "Quatro" }, { en: "Between", pt: "Entre" }, { en: "State", pt: "Estado" },
+        { en: "Keep", pt: "Manter" }, { en: "Eye", pt: "Olho" }, { en: "Never", pt: "Nunca" }, { en: "Last", pt: "Último" }, { en: "Let", pt: "Deixar" }, { en: "Thought", pt: "Pensou, Pensamento" }, { en: "City", pt: "Cidade" }, { en: "Tree", pt: "Árvore" }, { en: "Cross", pt: "Cruz, Atravessar" }, { en: "Farm", pt: "Fazenda" },
+        { en: "Hard", pt: "Difícil, Duro" }, { en: "Start", pt: "Começar" }, { en: "Might", pt: "Pode ser" }, { en: "Story", pt: "História" }, { en: "Saw", pt: "Viu, Serra" }, { en: "Far", pt: "Longe" }, { en: "Sea", pt: "Mar" }, { en: "Draw", pt: "Desenhar" }, { en: "Left", pt: "Esquerda, Deixou" }, { en: "Late", pt: "Tarde, Atrasado" },
+        { en: "Run", pt: "Correr" }, { en: "Don't", pt: "Não (do not)" }, { en: "While", pt: "Enquanto" }, { en: "Press", pt: "Pressionar" }, { en: "Close", pt: "Fechar, Perto" }, { en: "Night", pt: "Noite" }, { en: "Real", pt: "Real" }, { en: "Life", pt: "Vida" }, { en: "Few", pt: "Poucos" }, { en: "North", pt: "Norte" },
+        { en: "Open", pt: "Abrir" }, { en: "Seem", pt: "Parecer" }, { en: "Together", pt: "Juntos" }, { en: "Next", pt: "Próximo" }, { en: "White", pt: "Branco" }, { en: "Children", pt: "Crianças" }, { en: "Begin", pt: "Começar" }, { en: "Got", pt: "Pegou" }, { en: "Walk", pt: "Andar" }, { en: "Example", pt: "Exemplo" },
+        { en: "Ease", pt: "Facilidade" }, { en: "Paper", pt: "Papel" }, { en: "Group", pt: "Grupo" }, { en: "Always", pt: "Sempre" }, { en: "Music", pt: "Música" }, { en: "Those", pt: "Aqueles" }, { en: "Both", pt: "Ambos" }, { en: "Mark", pt: "Marca" }, { en: "Often", pt: "Frequentemente" }, { en: "Letter", pt: "Carta, Letra" },
+        { en: "Until", pt: "Até" }, { en: "Mile", pt: "Milha" }, { en: "River", pt: "Rio" }, { en: "Car", pt: "Carro" }, { en: "Feet", pt: "Pés" }, { en: "Care", pt: "Cuidado" }, { en: "Second", pt: "Segundo" }, { en: "Group", pt: "Grupo" }, { en: "Carry", pt: "Carregar" }, { en: "Took", pt: "Levou, Pegou" },
+        { en: "Rain", pt: "Chuva" }, { en: "Eat", pt: "Comer" }, { en: "Room", pt: "Quarto, Sala" }, { en: "Friend", pt: "Amigo" }, { en: "Began", pt: "Começou" }, { en: "Idea", pt: "Ideia" }, { en: "Fish", pt: "Peixe" }, { en: "Mountain", pt: "Montanha" }, { en: "Stop", pt: "Parar" }, { en: "Once", pt: "Uma vez" }
+    ];
     ];
 
+    // Estados
     let currentIndex = 0;
-    let stats = JSON.parse(localStorage.getItem('flashcards_stats')) || { learned: [], index: 0 };
+    let stats = JSON.parse(localStorage.getItem('eng_stats')) || {
+        easy: 0,
+        medium: 0,
+        hard: 0,
+        completedIndices: [],
+        lastIndex: 0
+    };
 
     function init() {
-        currentIndex = stats.index;
+        currentIndex = stats.lastIndex;
+        if(currentIndex >= words.length) currentIndex = 0;
         updateUI();
     }
 
@@ -98,22 +154,33 @@
 
     function handleAnswer(type) {
         if (type === 'easy') {
-            if (!stats.learned.includes(currentIndex)) stats.learned.push(currentIndex);
+            stats.easy++;
+            if (!stats.completedIndices.includes(currentIndex)) {
+                stats.completedIndices.push(currentIndex);
+            }
             currentIndex++;
         } else if (type === 'medium') {
-            // No médio, apenas pula mas não marca como totalmente aprendido
+            stats.medium++;
+            // No médio, ele avança, mas não ganha o "check" de completado definitivamente
             currentIndex++;
-        } else {
-            // No difícil, apenas desvira o card para a pessoa ver de novo
-            document.getElementById('card').classList.remove('flipped');
-            document.getElementById('controls').style.display = 'none';
-            return;
+        } else if (type === 'hard') {
+            stats.hard++;
+            // Se não sabe, a palavra vai para o final da lista para repetir depois
+            let currentWord = words.splice(currentIndex, 1)[0];
+            words.push(currentWord);
+            // Não aumenta o índice porque a lista mudou
         }
 
-        // Salvar progresso
-        stats.index = currentIndex;
-        localStorage.setItem('flashcards_stats', JSON.stringify(stats));
+        // Se chegar no fim da lista, volta ao início das que faltam
+        if (currentIndex >= words.length) {
+            currentIndex = 0;
+        }
+
+        // Salvar
+        stats.lastIndex = currentIndex;
+        localStorage.setItem('eng_stats', JSON.stringify(stats));
         
+        // Reset Card
         document.getElementById('card').classList.remove('flipped');
         document.getElementById('controls').style.display = 'none';
         
@@ -121,19 +188,29 @@
     }
 
     function updateUI() {
-        if (currentIndex >= database.length) {
-            alert("Parabéns! Você completou as 500 palavras!");
+        const totalWords = words.length;
+        
+        // Se a pessoa já completou todas as palavras reais
+        if (stats.completedIndices.length >= totalWords && totalWords > 0) {
+            document.getElementById('display-en').innerText = "🎉";
+            document.getElementById('display-pt').innerText = "VOCÊ TERMINOU!";
             return;
         }
 
-        const word = database[currentIndex];
-        document.getElementById('current-word-en').innerText = word.en;
-        document.getElementById('current-word-pt').innerText = word.pt;
-        document.getElementById('current-image').src = word.img;
+        const word = words[currentIndex];
+        document.getElementById('display-en').innerText = word.en;
+        document.getElementById('display-pt').innerText = word.pt;
 
-        const progress = (stats.learned.length / database.length) * 100;
+        // Atualizar Stats
+        document.getElementById('count-easy').innerText = stats.easy;
+        document.getElementById('count-medium').innerText = stats.medium;
+        document.getElementById('count-hard').innerText = stats.hard;
+        document.getElementById('rem-count').innerText = totalWords - stats.completedIndices.length;
+
+        // Barra de Progresso
+        const progress = (stats.completedIndices.length / totalWords) * 100;
         document.getElementById('progress-bar').style.width = progress + "%";
-        document.getElementById('learned-count').innerText = stats.learned.length;
+        document.getElementById('perc-info').innerText = Math.round(progress) + "%";
     }
 
     init();
