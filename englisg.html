@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English FlashCards - 500 Palavras</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --success: #00b894;
+            --warning: #f1c40f;
+            --danger: #d63031;
+            --bg: #f0f2f5;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; }
+        
+        /* Menu e Progresso */
+        .header { width: 100%; max-width: 500px; padding: 20px; text-align: center; }
+        .progress-container { background: #dfe6e9; border-radius: 10px; height: 10px; width: 100%; margin: 10px 0; }
+        .progress-bar { background: var(--primary); height: 100%; border-radius: 10px; width: 0%; transition: 0.5s; }
+        
+        /* Flashcard */
+        .card-container { perspective: 1000px; width: 350px; height: 450px; cursor: pointer; margin-top: 20px; }
+        .card { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.6s; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 20px; }
+        .card.flipped { transform: rotateY(180deg); }
+        
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; background: white; border-radius: 20px; padding: 20px; box-sizing: border-box; }
+        .card-back { transform: rotateY(180deg); background: #f9f9f9; }
+        
+        .word-en { font-size: 42px; font-weight: bold; color: var(--primary); }
+        .word-pt { font-size: 32px; color: #2d3436; }
+        .card-image { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; }
+
+        /* Botões */
+        .controls { display: none; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 350px; margin-top: 20px; }
+        .btn { padding: 15px 5px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 14px; }
+        .btn-easy { background: var(--success); }
+        .btn-medium { background: var(--warning); }
+        .btn-hard { background: var(--danger); }
+
+        .stats { margin-top: 20px; font-size: 0.9em; color: #636e72; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h2>My English Journey 🇺🇸</h2>
+    <div class="stats">
+        Progresso: <span id="learned-count">0</span> / 500 palavras
+    </div>
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+</div>
+
+<div class="card-container" onclick="flipCard()">
+    <div class="card" id="card">
+        <div class="card-face card-front">
+            <p style="font-size: 0.8em; color: #aaa;">TOQUE PARA VIRAR</p>
+            <div class="word-en" id="current-word-en">The</div>
+        </div>
+        <div class="card-face card-back">
+            <img src="https://img.freepik.com/fotos-gratis/mao-apontando-para-algo_23-2147731006.jpg" class="card-image" id="current-image">
+            <div class="word-pt" id="current-word-pt">O, A, Os, As</div>
+        </div>
+    </div>
+</div>
+
+<div class="controls" id="controls">
+    <button class="btn btn-hard" onclick="handleAnswer('hard')">Não sei<br>(Repetir)</button>
+    <button class="btn btn-medium" onclick="handleAnswer('medium')">Lembrei<br>(Médio)</button>
+    <button class="btn btn-easy" onclick="handleAnswer('easy')">Já sei<br>(Fácil)</button>
+</div>
+
+<script>
+    // Banco de Dados das Palavras (Exemplo das primeiras)
+    const database = [
+        { en: "The", pt: "O, A, Os, As", img: "https://images.unsplash.com/photo-1584905066893-7d5c142ba4e1?q=80&w=400" },
+        { en: "And", pt: "E", img: "https://images.unsplash.com/photo-1518112391480-98fc524a8bfd?q=80&w=400" },
+        { en: "A", pt: "Um, Uma", img: "https://images.unsplash.com/photo-1543185377-b75671bc9660?q=80&w=400" },
+        { en: "To", pt: "Para", img: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=400" }
+        // ... Adicionar as outras 496 aqui
+    ];
+
+    let currentIndex = 0;
+    let stats = JSON.parse(localStorage.getItem('flashcards_stats')) || { learned: [], index: 0 };
+
+    function init() {
+        currentIndex = stats.index;
+        updateUI();
+    }
+
+    function flipCard() {
+        document.getElementById('card').classList.add('flipped');
+        document.getElementById('controls').style.display = 'grid';
+    }
+
+    function handleAnswer(type) {
+        if (type === 'easy') {
+            if (!stats.learned.includes(currentIndex)) stats.learned.push(currentIndex);
+            currentIndex++;
+        } else if (type === 'medium') {
+            // No médio, apenas pula mas não marca como totalmente aprendido
+            currentIndex++;
+        } else {
+            // No difícil, apenas desvira o card para a pessoa ver de novo
+            document.getElementById('card').classList.remove('flipped');
+            document.getElementById('controls').style.display = 'none';
+            return;
+        }
+
+        // Salvar progresso
+        stats.index = currentIndex;
+        localStorage.setItem('flashcards_stats', JSON.stringify(stats));
+        
+        document.getElementById('card').classList.remove('flipped');
+        document.getElementById('controls').style.display = 'none';
+        
+        setTimeout(updateUI, 300);
+    }
+
+    function updateUI() {
+        if (currentIndex >= database.length) {
+            alert("Parabéns! Você completou as 500 palavras!");
+            return;
+        }
+
+        const word = database[currentIndex];
+        document.getElementById('current-word-en').innerText = word.en;
+        document.getElementById('current-word-pt').innerText = word.pt;
+        document.getElementById('current-image').src = word.img;
+
+        const progress = (stats.learned.length / database.length) * 100;
+        document.getElementById('progress-bar').style.width = progress + "%";
+        document.getElementById('learned-count').innerText = stats.learned.length;
+    }
+
+    init();
+</script>
+
+</body>
+</html>
